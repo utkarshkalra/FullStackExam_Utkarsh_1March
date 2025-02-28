@@ -1,8 +1,6 @@
 import axios from "axios";
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  "https://fullstackexam-utkarsh-1march.onrender.com/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5123/api";
 
 const api = axios.create({
   baseURL: API_URL,
