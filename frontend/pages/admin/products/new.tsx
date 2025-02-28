@@ -7,8 +7,8 @@ import Link from "next/link";
 
 export default function NewProduct() {
   const router = useRouter();
-  const { user } = useAuth();
-  if (!user) {
+  const { user, loading } = useAuth();
+  if (loading) {
     return <div>Loading...</div>;
   }
   if (!user?.isAdmin) {

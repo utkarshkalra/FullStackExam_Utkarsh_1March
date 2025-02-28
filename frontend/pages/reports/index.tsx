@@ -9,8 +9,8 @@ import { useRouter } from "next/router";
 
 export default function Reports() {
   const router = useRouter();
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const { user, loading } = useAuth();
+  const [reportsLoading, setReportsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dailyRevenue, setDailyRevenue] = useState<DailyRevenue[]>([]);
   const [topSpenders, setTopSpenders] = useState<TopSpender[]>([]);
@@ -42,9 +42,21 @@ export default function Reports() {
     } catch {
       setError("Failed to fetch reports");
     } finally {
-      setLoading(false);
+      setReportsLoading(false);
     }
   };
+
+  if (reportsLoading) {
+    return (
+      <Layout>
+        <div>Loading...</div>
+      </Layout>
+    );
+  }
+
+  if (!loading && !user?.isAdmin) {
+    return null;
+  }
 
   if (loading) {
     return (
@@ -53,11 +65,6 @@ export default function Reports() {
       </Layout>
     );
   }
-
-  if (!user?.isAdmin) {
-    return null;
-  }
-
   return (
     <Layout>
       <div className="space-y-8">

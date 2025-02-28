@@ -10,15 +10,12 @@ import Link from "next/link";
 export default function EditProduct() {
   const router = useRouter();
   const { id } = router.query;
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [editLoading, setEditLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) {
-      return;
-    }
     if (!user?.isAdmin) {
       router.push("/");
       return;
@@ -37,7 +34,7 @@ export default function EditProduct() {
       console.error("Error fetching product:", error);
       setError("Failed to fetch product");
     } finally {
-      setLoading(false);
+      setEditLoading(false);
     }
   };
 
@@ -46,7 +43,7 @@ export default function EditProduct() {
     router.push("/admin/products");
   };
 
-  if (loading) {
+  if (loading || editLoading) {
     return (
       <Layout>
         <div>Loading...</div>

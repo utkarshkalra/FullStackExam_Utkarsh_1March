@@ -11,7 +11,7 @@ interface HomeProps {
 }
 
 export default function Home({ featuredProducts }: HomeProps) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [error, setError] = useState<string | null>(null);
 
   const handleAddToCart = async (productId: string, quantity: number) => {
@@ -22,6 +22,10 @@ export default function Home({ featuredProducts }: HomeProps) {
       setError("Failed to add item to cart");
     }
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Layout isHomeScreen={true}>

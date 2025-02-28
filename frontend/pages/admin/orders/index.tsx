@@ -8,10 +8,10 @@ import Link from "next/link";
 
 export default function ManageOrders() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [allOrders, setAllOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [ordersLoading, setOrdersLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updateLoading, setUpdateLoading] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -25,12 +25,11 @@ export default function ManageOrders() {
     } catch {
       setError("Failed to fetch orders");
     } finally {
-      setLoading(false);
+      setOrdersLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    if (!user) return;
     if (!user?.isAdmin) {
       router.push("/");
       return;
@@ -82,7 +81,7 @@ export default function ManageOrders() {
     }
   };
 
-  if (loading) {
+  if (ordersLoading || loading) {
     return (
       <Layout>
         <div>Loading...</div>

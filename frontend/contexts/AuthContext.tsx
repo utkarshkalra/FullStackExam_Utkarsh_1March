@@ -20,6 +20,7 @@ interface AuthContextType {
     address: string
   ) => Promise<void>;
   logout: () => void;
+  error: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,23 +28,24 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     checkAuth();
   }, []);
 
   const checkAuth = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (token) {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
         const { data } = await auth.getProfile();
         setUser(data);
+      } catch (error) {
+        setError(error as string);
+        console.error("Error checking authentication:", error);
+        localStorage.removeItem("token");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error checking authentication:", error);
-      localStorage.removeItem("token");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -51,6 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data } = await auth.login({ email, password });
     localStorage.setItem("token", data.token);
     setUser(data.user);
+    setError(null);
   };
 
   const register = async (
@@ -69,17 +72,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("token", response.data.token);
       setUser(response.data.user);
     } catch (error) {
-      throw error;
+      setError(error as string);
     }
   };
 
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
+    setError(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, login, register, logout, error }}
+    >
       {children}
     </AuthContext.Provider>
   );
