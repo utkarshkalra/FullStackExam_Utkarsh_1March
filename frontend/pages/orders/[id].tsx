@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 import Layout from "../../components/Layout";
 import { Order } from "../../types";
@@ -13,13 +13,7 @@ export default function OrderDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (id) {
-      fetchOrder();
-    }
-  }, [id]);
-
-  const fetchOrder = async () => {
+  const fetchOrder = useCallback(async () => {
     try {
       const { data } = await orders.getById(id as string);
       setOrder(data);
@@ -29,7 +23,12 @@ export default function OrderDetails() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+  useEffect(() => {
+    if (id) {
+      fetchOrder();
+    }
+  }, [id, fetchOrder]);
 
   if (loading) {
     return (

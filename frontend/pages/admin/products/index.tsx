@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 import Layout from "@/components/Layout";
 import { Product } from "@/types";
@@ -14,24 +14,24 @@ export default function AdminProducts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchProducts = useCallback(async () => {
+    try {
+      const { data } = await products.list({ limit: 100 });
+      setProductList(data.products);
+    } catch {
+      setError("Failed to fetch products");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!user?.isAdmin) {
       router.push("/");
       return;
     }
     fetchProducts();
-  }, [user, router]);
-
-  const fetchProducts = async () => {
-    try {
-      const { data } = await products.list({ limit: 100 });
-      setProductList(data.products);
-    } catch (error) {
-      setError("Failed to fetch products");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [user, router, fetchProducts]);
 
   const handleDelete = async (productId: string) => {
     if (!window.confirm("Are you sure you want to delete this product?")) {
@@ -41,7 +41,7 @@ export default function AdminProducts() {
     try {
       await products.delete(productId);
       setProductList((prev) => prev.filter((p) => p._id !== productId));
-    } catch (error) {
+    } catch {
       setError("Failed to delete product");
     }
   };

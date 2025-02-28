@@ -7,6 +7,16 @@ export default function Payment() {
   const [processing, setProcessing] = useState(true);
   const [error, setError] = useState("");
 
+  const createOrder = async () => {
+    try {
+      await orders.create();
+      router.push("/orders"); // Redirect to orders page on success
+    } catch {
+      setProcessing(false);
+      setError("Failed to create order. Please try again.");
+    }
+  };
+
   useEffect(() => {
     // Simulate payment processing
     const timer = setTimeout(() => {
@@ -23,17 +33,7 @@ export default function Payment() {
     }, 2000); // Show processing for 2 seconds
 
     return () => clearTimeout(timer);
-  }, []);
-
-  const createOrder = async () => {
-    try {
-      await orders.create();
-      router.push("/orders"); // Redirect to orders page on success
-    } catch {
-      setProcessing(false);
-      setError("Failed to create order. Please try again.");
-    }
-  };
+  }, [createOrder]);
 
   if (processing) {
     return (

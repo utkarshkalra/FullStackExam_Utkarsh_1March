@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Layout from "@/components/Layout";
 import { Order } from "@/types";
 import { orders } from "@/utils/api";
@@ -17,6 +17,18 @@ export default function ManageOrders() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
+  const fetchOrders = useCallback(async () => {
+    try {
+      const { data } = await orders.listAll();
+      setAllOrders(data);
+      setFilteredOrders(data);
+    } catch {
+      setError("Failed to fetch orders");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!user) return;
     if (!user?.isAdmin) {
@@ -24,13 +36,9 @@ export default function ManageOrders() {
       return;
     }
     fetchOrders();
-  }, [user, router]);
+  }, [user, router, fetchOrders]);
 
-  useEffect(() => {
-    filterOrders();
-  }, [searchTerm, statusFilter, allOrders]);
-
-  const filterOrders = () => {
+  const filterOrders = useCallback(() => {
     let filtered = [...allOrders];
 
     // Apply status filter
@@ -50,19 +58,11 @@ export default function ManageOrders() {
     }
 
     setFilteredOrders(filtered);
-  };
+  }, [allOrders, searchTerm, statusFilter]);
 
-  const fetchOrders = async () => {
-    try {
-      const { data } = await orders.listAll();
-      setAllOrders(data);
-      setFilteredOrders(data);
-    } catch {
-      setError("Failed to fetch orders");
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    filterOrders();
+  }, [searchTerm, statusFilter, allOrders, filterOrders]);
 
   const handleStatusUpdate = async (orderId: string, newStatus: string) => {
     try {

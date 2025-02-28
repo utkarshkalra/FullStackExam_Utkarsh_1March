@@ -110,7 +110,7 @@ export default function Layout({
             </div>
             <div className="flex items-center sm:hidden">
               {user?.isAdmin && (
-                <span className="text-gray-100 bg-blue-600 px-2 py-1 rounded-md pl-3 pr-4 py-2">
+                <span className="text-gray-100 bg-blue-600 px-2 rounded-md pl-3 pr-4 py-2">
                   Admin Logged In
                 </span>
               )}
