@@ -91,18 +91,32 @@ export default function OrderDetails() {
                 {order.OrderItems.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between"
+                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
                   >
                     <div className="flex items-center space-x-4">
-                      <div className="text-sm">
-                        <div className="font-medium">{item.productId}</div>
-                        <div className="text-gray-500">
+                      {item.product?.imageUrl && (
+                        <img
+                          src={item.product.imageUrl}
+                          alt={item.product.name}
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                      )}
+                      <div>
+                        <p className="font-medium">
+                          {item.product?.name || "Product Unavailable"}
+                        </p>
+                        <p className="text-gray-500">
                           Quantity: {item.quantity}
-                        </div>
+                        </p>
+                        <p className="text-gray-500">
+                          Price: ${item.price.toFixed(2)} each
+                        </p>
                       </div>
                     </div>
-                    <div className="text-sm font-medium">
-                      ${(item.price * item.quantity).toFixed(2)}
+                    <div className="text-right">
+                      <div className="text-lg font-medium">
+                        ${(item.price * item.quantity).toFixed(2)}
+                      </div>
                     </div>
                   </div>
                 ))}

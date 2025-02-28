@@ -98,10 +98,24 @@ export default function Orders() {
                       {order.OrderItems.map((item) => (
                         <div
                           key={item.id}
-                          className="flex justify-between text-sm"
+                          className="flex items-center justify-between text-sm"
                         >
-                          <div>
-                            {item.quantity}x {item.productId}
+                          <div className="flex items-center space-x-3">
+                            {item.product?.imageUrl && (
+                              <img
+                                src={item.product.imageUrl}
+                                alt={item.product.name}
+                                className="w-12 h-12 object-cover rounded"
+                              />
+                            )}
+                            <div>
+                              <p className="font-medium">
+                                {item.product?.name || "Product Unavailable"}
+                              </p>
+                              <p className="text-gray-500">
+                                Quantity: {item.quantity}
+                              </p>
+                            </div>
                           </div>
                           <div>${(item.price * item.quantity).toFixed(2)}</div>
                         </div>
@@ -109,13 +123,16 @@ export default function Orders() {
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-4 border-t">
+                  <div className="mt-4 pt-4 border-t flex justify-between items-center">
                     <Link
                       href={`/orders/${order.id}`}
                       className="text-blue-500 hover:underline"
                     >
                       View Order Details
                     </Link>
+                    <div className="text-lg font-bold">
+                      Total: ${order.total.toFixed(2)}
+                    </div>
                   </div>
                 </div>
               </div>

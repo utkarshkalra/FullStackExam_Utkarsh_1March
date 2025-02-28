@@ -32,6 +32,7 @@ class OrderController {
       }
 
       // Create order
+      console.log("r32edkfkg", transaction);
       const order = await Order.create(
         {
           UserId: req.user.id,
@@ -47,7 +48,7 @@ class OrderController {
         orderItems.push(
           OrderItem.create(
             {
-              orderId: order.id,
+              OrderId: order.id,
               productId: item.productId._id.toString(),
               quantity: item.quantity,
               price: item.productId.price,
@@ -84,16 +85,42 @@ class OrderController {
   }
 
   async getOrders(req, res) {
-    console.log("req.user", req.user);
     try {
       const orders = await Order.findAll({
-        where: { userId: req.user.id },
+        where: { UserId: req.user.id },
         include: [OrderItem],
         order: [["createdAt", "DESC"]],
       });
 
-      res.json(orders);
+      // Fetch product details separately from MongoDB
+      const ordersWithProducts = await Promise.all(
+        orders.map(async (order) => {
+          const orderObj = order.toJSON();
+          const orderItems = await Promise.all(
+            orderObj.OrderItems.map(async (item) => {
+              const product = await Product.findById(item.productId);
+              return {
+                ...item,
+                product: product
+                  ? {
+                      name: product.name,
+                      imageUrl: product.imageUrl,
+                      price: product.price,
+                    }
+                  : null,
+              };
+            })
+          );
+          return {
+            ...orderObj,
+            OrderItems: orderItems,
+          };
+        })
+      );
+
+      res.json(ordersWithProducts);
     } catch (error) {
+      console.error("Error fetching orders:", error);
       res.status(500).json({ error: "Failed to fetch orders" });
     }
   }
@@ -101,7 +128,7 @@ class OrderController {
   async getOrder(req, res) {
     try {
       const order = await Order.findOne({
-        where: { id: req.params.id, userId: req.user.id },
+        where: { id: req.params.id, UserId: req.user.id },
         include: [OrderItem],
       });
 
@@ -109,8 +136,32 @@ class OrderController {
         return res.status(404).json({ error: "Order not found" });
       }
 
-      res.json(order);
+      // Fetch product details from MongoDB and combine with order data
+      const orderObj = order.toJSON();
+      const orderItems = await Promise.all(
+        orderObj.OrderItems.map(async (item) => {
+          const product = await Product.findById(item.productId);
+          return {
+            ...item,
+            product: product
+              ? {
+                  name: product.name,
+                  imageUrl: product.imageUrl,
+                  price: product.price,
+                }
+              : null,
+          };
+        })
+      );
+
+      const orderWithProducts = {
+        ...orderObj,
+        OrderItems: orderItems,
+      };
+
+      res.json(orderWithProducts);
     } catch (error) {
+      console.error("Error fetching order:", error);
       res.status(500).json({ error: "Failed to fetch order" });
     }
   }
