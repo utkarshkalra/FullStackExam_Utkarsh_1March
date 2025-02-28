@@ -34,18 +34,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const checkAuth = async () => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      try {
+    try {
+      const token = localStorage.getItem("token");
+      if (token) {
         const { data } = await auth.getProfile();
         setUser(data);
-      } catch (error) {
-        setError(error as string);
-        console.error("Error checking authentication:", error);
-        localStorage.removeItem("token");
-      } finally {
-        setLoading(false);
       }
+    } catch (error) {
+      setError(error as string);
+      console.error("Error checking authentication:", error);
+      localStorage.removeItem("token");
+    } finally {
+      setLoading(false);
     }
   };
 

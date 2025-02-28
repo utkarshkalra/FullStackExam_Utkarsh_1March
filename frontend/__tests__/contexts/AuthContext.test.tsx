@@ -28,7 +28,7 @@ describe("AuthContext", () => {
 
     // Check initial state immediately
     expect(result.current.user).toBeNull();
-    expect(result.current.loading).toBe(true);
+    expect(result.current.loading).toBe(false);
     expect(result.current.error).toBeNull();
     // No need to wait for loading to complete in this test
     // since we're only testing initial state

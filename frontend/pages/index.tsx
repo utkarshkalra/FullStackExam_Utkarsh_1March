@@ -14,6 +14,7 @@ export default function Home({ featuredProducts }: HomeProps) {
   const { user, loading } = useAuth();
   const [error, setError] = useState<string | null>(null);
 
+  console.log(user, loading);
   const handleAddToCart = async (productId: string, quantity: number) => {
     try {
       await cart.addItem({ productId, quantity });
